@@ -8,7 +8,9 @@ const userInterfaceController = ( function(){
     const settingsMenu = document.querySelector(".settings-form");
     const gameContainer = document.querySelector(".game-container");
     const restartBtn = document.querySelector(".restart-btn");
+    const cards = document.querySelector(".players-cards");
 
+    console.log(cards);
     function init(){
         startGameBtn.addEventListener("click", startGame);
     }
@@ -27,12 +29,19 @@ const userInterfaceController = ( function(){
 
         // Display restart button on header
         restartBtn.style.display = "grid";
-    
+
+        // Populate player's cards
+        cards.querySelector(".card-name.player-one").textContent = player1.name;
+        cards.querySelector(".card-symbol.player-one").textContent = player1.symbol;
+        cards.querySelector(".card-bot.player-one").textContent = player1.isBot? "Bot":"Human";
+
+        cards.querySelector(".card-name.player-two").textContent = player2.name;
+        cards.querySelector(".card-symbol.player-two").textContent = player2.symbol;
+        cards.querySelector(".card-bot.player-two").textContent = player2.isBot? "Bot":"Human";
     }
 
     return {init}
 })()
-
 
 document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 
