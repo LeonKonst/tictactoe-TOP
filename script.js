@@ -3,6 +3,45 @@ function createPlayer(name, isBot, symbol){
     return {name, isBot, symbol}
 }
 
+// Game Logic 
+const gameFlow = (function gameLogic(){
+
+    const init = () =>{
+        board.init();
+    }
+
+    return {init}
+})()
+
+const board = ( function (){
+    let board = [];
+    const size = 3;
+
+    const init = () => {
+        for (let i = 0; i < size; i++){
+            board[i] = [];
+            for (let j = 0; j < size; j++){
+                board[i][j] = null;
+            }
+        }
+    }
+
+    const getBoard = () => board;
+
+    const setTile = (row, column, value) => {
+        // Check if tile is already captured.
+        if(board[row][column]!==null){
+            return false;
+        }
+        board[row][column] = value;
+        return true;
+    }; 
+    
+    return {getBoard, setTile, init};
+})()
+
+
+// UI controller logic
 const userInterfaceController = ( function(){
     const startGameBtn = document.querySelector(".start-game-btn");
     const settingsMenu = document.querySelector(".settings-form");
@@ -10,9 +49,9 @@ const userInterfaceController = ( function(){
     const restartBtn = document.querySelector(".restart-btn");
     const cards = document.querySelector(".players-cards");
 
-    console.log(cards);
     function init(){
         startGameBtn.addEventListener("click", startGame);
+        restartBtn.addEventListener("click", () => console.log("Restart game logic will be added later!"))
     }
 
     function startGame() {
@@ -38,6 +77,9 @@ const userInterfaceController = ( function(){
         cards.querySelector(".card-name.player-two").textContent = player2.name;
         cards.querySelector(".card-symbol.player-two").textContent = player2.symbol;
         cards.querySelector(".card-bot.player-two").textContent = player2.isBot? "Bot":"Human";
+    
+        // Initialize game logic
+        gameFlow.init();
     }
 
     return {init}
@@ -120,13 +162,13 @@ document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 //         }
 //     }
 
-//     const changeBoard = (column, row) => {
+//     const setTile = (column, row) => {
 //         let nextActivePlayer = gameLogic.getActivePlayer();
 //         let changedBtn = document.querySelector(`.row-${row}.column-${column}`);
 //         changedBtn.classList.add(`disabled`,`number${nextActivePlayer.number}`) 
 //     }
 
-//     return {board, columns, rows, changeBoard};
+//     return {board, columns, rows, setTile};
 // })()
 
 // function createBoardTile (column, row, player){
@@ -165,7 +207,7 @@ document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 //     const playARound = (column, row) => {
 //         let hasPlayedRound = activePlayer.occupyTile(column,row);
 //         if(hasPlayedRound){
-//             board.changeBoard(column,row);  
+//             board.setTile(column,row);  
 //             gameDisplay.innerText = `${activePlayer.name} occupied tile ${row}, ${column}`
             
 //             let point = activePlayer.number;
