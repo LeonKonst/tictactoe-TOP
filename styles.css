@@ -1,0 +1,183 @@
+:root{
+    --color1:#05299E;
+    --color2:#5e4ae3;
+    --color3:#947bd3;
+    --color4:#f0a7a0;
+    --color5:#f26ca7;
+    --color6:#Ef6461;
+    --color7:#e4b363;
+    --color8:#e8e9eb;
+    --color9:#e0dfd5;
+    --color10:#313638;
+}
+
+*{
+    /* border: 1px solid black; */
+}
+
+body{
+    height: 100vh;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    color:var(--color10);
+    background-color: var(--color9);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+header{
+    background-color: var(--color4);
+    display: flex;
+    justify-content: center;
+    border-bottom: 3px solid var(--color10);
+}
+
+header h1{
+    padding: 0.5rem 1rem;
+}
+
+main{
+    display: flex;
+    justify-content: center;
+}
+
+.settings-form{
+    width: 292px;
+    box-sizing: content-box;
+    margin: 1rem;
+    border: solid 2px var(--color10);
+    border-radius: 2rem;
+    box-shadow: 3px 3px var(--color10);
+    display: grid;    
+}
+
+.settings-form h1{
+    padding: 0.5rem 2rem;
+    background-color: #e4b363;
+    border-bottom: 2px solid var(--color10);
+    border-radius: 1.9rem 1.9rem 0 0;
+}
+
+.player-settings-container{
+    display: grid;
+    background-color: var(--color8);
+}
+
+.player-settings-container legend{
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background-color: var(--color9);
+    border-top: 1px solid var(--color10);
+    border-bottom: 1px solid var(--color10);
+    font-size: medium;
+}
+
+.player-settings-container input[type=text]{
+    border:0;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    text-align: center;
+    background-color: var(--color9);
+    border-top: 1px solid var(--color10);
+    border-bottom: 1px solid var(--color10);
+    font-size: medium;
+    transition: all 0.4s ease;
+}
+
+.player-settings-container input[type=text]:focus{
+    outline:none;
+    color: var(--color6);
+}
+
+.player-bot-container{
+    padding: 0.5rem 1rem; 
+}
+
+.player-bot-container.last{
+    border-bottom: 1px solid var(--color10);
+}
+
+.player-bot-container input{
+    display: none;
+}
+
+.slider{
+    height: 20px;
+    width: 40px;
+    border-radius: 0.5rem;
+    border: 1px dashed var(--color1);
+    position: relative;
+    left: 105px;
+    top: -1px;
+    background-color: var(--color1);
+    opacity: 25%;
+    transition: all 0.3s ease;
+}
+
+.player-bot-container:hover{
+    background-color: var(--color4);
+}
+
+.player-bot-container input:checked+div{
+    width: 60px;
+    left: -118px;
+    background-color: var(--color5);
+
+}
+
+.player-bot-container label{
+    display: flex;
+    justify-content: space-between; 
+    cursor: pointer;
+}
+
+
+.settings-container button{
+    position: relative;
+    left:25%;
+    bottom: 10px;
+    border: 1px dashed var(--color7);
+    margin-top: 20px;
+    padding: 0.25rem 2rem;
+    border-radius: 1rem;
+    background-color: var(--color10);
+    color: var(--color7);
+    transition: all 0.4s ease;
+}
+
+.settings-container button:hover{
+    border: 1px dashed var(--color10);
+    background-color: var(--color7);
+    color: var(--color10);
+    cursor: pointer;
+}
+
+
+footer{
+    background-color: var(--color4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    font-size: small;
+    border-top: 3px solid var(--color10);
+}
+
+footer a{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: var(--color10);
+    margin: 0.5rem 1rem;
+    transition: 0.3s all ease;
+}
+
+footer a:hover{
+   fill: var(--color8); 
+   color: var(--color8);
+}
+
+footer svg{
+    height: 20px;
+}

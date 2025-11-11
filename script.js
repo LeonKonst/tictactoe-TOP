@@ -1,3 +1,9 @@
+const startGameBtn = document.querySelector(".start-game-btn");
+
+startGameBtn.addEventListener("click",()=>{
+    console.log("test")
+    }  
+)
 // IIFE creating the board. 
 const board = (function createGameBoard (){
     let board = [];
