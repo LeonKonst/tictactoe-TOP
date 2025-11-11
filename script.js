@@ -2,6 +2,7 @@ const startGameBtn = document.querySelector(".start-game-btn");
 const restartBtn = document.querySelector(".restart-btn");
 const settingsMenu = document.querySelector(".settings-form")
 const gameBoard = document.querySelector(".gameboard-container");
+const gameDisplay = document.querySelector(".display-container")
 const main = document.querySelector("main");
 const header = document.querySelector("header")
 let Player1;
@@ -24,6 +25,7 @@ startGameBtn.addEventListener("click", () => {
     restartBtn.classList.add("show");
     settingsMenu.style.display = "none";
     gameBoard.style.display = "grid";
+    gameDisplay.style.display = "flex";
 });
 
 restartBtn.addEventListener("click", () => {
@@ -59,22 +61,13 @@ const board = (function createGameBoard (){
         }
     }
 
-    const printBoard = () => {
-        for (let i = 0; i < columns; i++){
-            console.log("------------")
-            for (let j = 0; j < rows; j++){
-                console.log(board[i][j].getPlayerOccupiedTile() + "|");
-            }
-        }
-    }
-
     const changeBoard = (column, row) => {
         let nextActivePlayer = gameLogic.getActivePlayer();
         let changedBtn = document.querySelector(`.row-${row}.column-${column}`);
         changedBtn.classList.add(`disabled`,`number${nextActivePlayer.number}`) 
     }
 
-    return {board, columns, rows, changeBoard, printBoard};
+    return {board, columns, rows, changeBoard};
 })()
 
 function createBoardTile (column, row, player){
@@ -105,14 +98,14 @@ function createPlayer(name, number, isBot, symbol, isActive){
     const occupyTile = (column, row) => {
         // This will be removed and changed to disable the button
         if(board.board[column][row].isTileOccupied()){
-            console.log(`Tile is occupied from symbol ${board.board[column][row].getPlayerOccupiedTile()}. Try another one!`);
+            gameDisplay.innerText = `Tile is occupied from symbol ${board.board[column][row].getPlayerOccupiedTile()}. Try another one!`;
             return false;
         }
-        board.board[parseInt(column)][parseInt(row)].setPlayerOccupiedTile(number);
+        board.board[parseInt(column)][parseInt(row)].setPlayerOccupiedTile(symbol);
         return true;
     }
 
-    return {name, number, isActive, occupyTile}
+    return {name, number, isActive, symbol, occupyTile}
 }
 
 function GameFlow (Player1, Player2){
@@ -128,7 +121,7 @@ function GameFlow (Player1, Player2){
     const playARound = (column, row) => {
         let hasPlayedRound = activePlayer.occupyTile(column,row);
         if(hasPlayedRound){
-            console.log(activePlayer.name + " occupied tile " + column + ", " + row)
+            gameDisplay.innerText = `${activePlayer.name} occupied tile ${row}, ${column}`
             
             let point = activePlayer.number;
             winningTriplets.rows[row] += point;
@@ -152,7 +145,7 @@ function GameFlow (Player1, Player2){
         Math.abs(winningTriplets.columns[column]) === 3 ||
         Math.abs(winningTriplets.diagonal) === 3 ||
         Math.abs(winningTriplets.antidiagonal) === 3) {
-            console.log(`${player.name} wins!`);
+            gameDisplay.innerText =`${player.name} wins!`;
 
             //TODO add end game logic
         }
