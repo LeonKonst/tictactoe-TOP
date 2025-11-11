@@ -7,6 +7,7 @@ const userInterfaceController = ( function(){
     const startGameBtn = document.querySelector(".start-game-btn");
     const settingsMenu = document.querySelector(".settings-form");
     const gameContainer = document.querySelector(".game-container");
+    const restartBtn = document.querySelector(".restart-btn");
 
     function init(){
         startGameBtn.addEventListener("click", startGame);
@@ -24,6 +25,8 @@ const userInterfaceController = ( function(){
         // Display tic tac toe board
         gameContainer.style.display = "flex";
 
+        // Display restart button on header
+        restartBtn.style.display = "grid";
     
     }
 
@@ -52,11 +55,7 @@ document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 
 
 
-// 
-// const restartBtn = document.querySelector(".restart-btn");
-// 
 // const gameBoard = document.querySelector(".gameboard-container");
-// 
 // const gameDisplay = document.querySelector(".display-container");
 // const main = document.querySelector("main");
 // const header = document.querySelector("header")

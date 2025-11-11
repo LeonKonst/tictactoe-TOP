@@ -46,7 +46,7 @@ header h1{
     background-color: var(--color7);
     color: var(--color10);
     transition: all 0.3s ease;
-    transform: scaleX(0);
+    display: none;
 }
 
 .restart-btn:hover{
@@ -54,9 +54,6 @@ header h1{
     color: var(--color7)
 }
 
-.restart-btn.show{
-    transform: scaleX(1);
-}
 
 main{
     display: flex;
