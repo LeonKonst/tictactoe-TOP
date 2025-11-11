@@ -11,10 +11,6 @@
     --color10:#313638;
 }
 
-*{
-    /* border: 1px solid black; */
-}
-
 body{
     height: 100vh;
     font-family:Verdana, Geneva, Tahoma, sans-serif;
@@ -28,12 +24,39 @@ body{
 header{
     background-color: var(--color4);
     display: flex;
-    justify-content: center;
+
+    padding: 0.5rem 2rem;
+    align-items: center;
     border-bottom: 3px solid var(--color10);
+}
+
+header.with-button{
+    justify-content: space-between;
+    
 }
 
 header h1{
     padding: 0.5rem 1rem;
+}
+
+.restart-btn{
+    border: 1px solid var(--color10);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    /* display:none; */
+    background-color: var(--color7);
+    color: var(--color10);
+    transition: all 0.3s ease;
+    transform: scaleX(0);
+}
+
+.restart-btn:hover{
+    background-color: var(--color10);
+    color: var(--color7)
+}
+
+.restart-btn.show{
+    transform: scaleX(1);
 }
 
 main{
@@ -50,6 +73,7 @@ main{
     box-shadow: 3px 3px var(--color10);
     display: grid;    
 }
+
 
 .settings-form h1{
     padding: 0.5rem 2rem;
@@ -103,25 +127,26 @@ main{
 
 .slider{
     height: 20px;
-    width: 40px;
+    width: 60px;
     border-radius: 0.5rem;
     border: 1px dashed var(--color1);
     position: relative;
-    left: 105px;
+    left: -118px;
     top: -1px;
-    background-color: var(--color1);
+    background-color: var(--color5);
     opacity: 25%;
     transition: all 0.3s ease;
 }
 
 .player-bot-container:hover{
-    background-color: var(--color4);
+    background-color: var(--color9);
 }
 
-.player-bot-container input:checked+div{
-    width: 60px;
-    left: -118px;
-    background-color: var(--color5);
+input:checked+.slider{
+    left: 105px;
+    width: 40px;
+    
+    background-color: var(--color1);
 
 }
 
@@ -150,6 +175,78 @@ main{
     background-color: var(--color7);
     color: var(--color10);
     cursor: pointer;
+}
+
+.gameboard-container{
+    display: none;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    border-radius: 2rem;
+}
+
+.gameboard-container div{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin: 0;
+    padding: 0;
+    border-bottom: var(--color10) 3px solid;
+}
+
+.gameboard-container div:last-child{
+    border-bottom: 0;
+}
+
+.gameboard-container button{
+    border: none;
+    border-radius: 0;
+    height: 5rem;
+    width: 5rem;
+    background-color: var(--color4);
+    transition: all ease 0.3s;
+}
+
+.gameboard-container button :not(.disabled):hover{
+    opacity: 85%;
+}
+
+button.disabled{
+    background-color: var(--color7);
+}
+
+button.number-1::after{
+    color:var(--color6);
+    content: "O";
+}
+
+button.number1::after{
+    color:var(--color2);
+    content: "X";
+}
+
+.row-0>.column-0{
+    border-radius: 1rem 0 0 0;
+}
+
+.row-0>.column-2{
+    border-radius: 0 1rem  0 0;
+}
+
+.row-2>.column-0{
+    border-radius: 0 0 0 1rem;
+}
+
+.row-2>.column-2{
+    border-radius: 0 0 1rem 0;
+}
+
+
+
+.gameboard-container>div>button:first-child{
+    border-right: var(--color10) 3px solid;
+}
+
+.gameboard-container>div>button:last-child{
+    border-left: var(--color10) 3px solid;
 }
 
 

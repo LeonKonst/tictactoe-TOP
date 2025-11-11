@@ -1,9 +1,51 @@
 const startGameBtn = document.querySelector(".start-game-btn");
+const restartBtn = document.querySelector(".restart-btn");
+const settingsMenu = document.querySelector(".settings-form")
+const gameBoard = document.querySelector(".gameboard-container");
+const main = document.querySelector("main");
+const header = document.querySelector("header")
+let Player1;
+let Player2;
+let gameLogic;
 
-startGameBtn.addEventListener("click",()=>{
-    console.log("test")
-    }  
-)
+
+startGameBtn.addEventListener("click", () => {
+    const inputs = document.querySelectorAll("input");
+    let values = {
+        playerOneName: inputs[0].value,
+        isPlayerOneABot: inputs[1].checked,
+        playerTwoName: inputs[2].value,
+        isPlayerTwoABot: inputs[3].checked,
+    };
+    Player1 = createPlayer(values.playerOneName, 1, values.isPlayerOneABot, "O");
+    Player2 = createPlayer(values.playerTwoName, -1, values.isPlayerTwoABot, "X");
+    gameLogic = GameFlow(Player1, Player2);
+    header.classList.add("with-button");
+    restartBtn.classList.add("show");
+    settingsMenu.style.display = "none";
+    gameBoard.style.display = "grid";
+});
+
+restartBtn.addEventListener("click", () => {
+    settingsMenu.style.display = "block";
+    gameBoard.style.display = "none";
+    restartBtn.classList.remove("show");
+    header.classList.remove("with-button");
+})
+
+
+gameBoard.addEventListener("click", (e) =>{
+    if(e.target.tagName === "DIV"){
+        return;
+    };
+    const str = e.target.classList.value;
+    let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
+    row = parseInt(row);
+    column = parseInt(column);
+    gameLogic.playARound(column, row);
+    board.changeBoard(column,row);   
+})
+
 // IIFE creating the board. 
 const board = (function createGameBoard (){
     let board = [];
@@ -17,8 +59,7 @@ const board = (function createGameBoard (){
         }
     }
 
-    //This will be removed
-    const printBoardOnConsole = () => {
+    const printBoard = () => {
         for (let i = 0; i < columns; i++){
             console.log("------------")
             for (let j = 0; j < rows; j++){
@@ -27,7 +68,13 @@ const board = (function createGameBoard (){
         }
     }
 
-    return {board, columns, rows, printBoardOnConsole};
+    const changeBoard = (column, row) => {
+        let nextActivePlayer = gameLogic.getActivePlayer();
+        let changedBtn = document.querySelector(`.row-${row}.column-${column}`);
+        changedBtn.classList.add(`disabled`,`number${nextActivePlayer.number}`) 
+    }
+
+    return {board, columns, rows, changeBoard, printBoard};
 })()
 
 function createBoardTile (column, row, player){
@@ -51,7 +98,7 @@ function createBoardTile (column, row, player){
     return {column, row, getPlayerOccupiedTile, setPlayerOccupiedTile, isTileOccupied}
 }
 
-function createPlayer(name, number, isBot, symbol){
+function createPlayer(name, number, isBot, symbol, isActive){
 
     console.log(`${name} is player number ${number} and ${isBot?"a bot":"a human"} who uses the symbol ${symbol}`);
 
@@ -65,14 +112,10 @@ function createPlayer(name, number, isBot, symbol){
         return true;
     }
 
-    return {name, number, occupyTile}
+    return {name, number, isActive, occupyTile}
 }
 
-//THis will change. The values will come from the dom!
-const   Player1 = createPlayer("Kostas", 1, false, "A");
-const Player2 = createPlayer("Tsipras", -1, true, "B");
-
-const gameFlow = (function(){
+function GameFlow (Player1, Player2){
     let round = 0;
     let activePlayer = Player1;
     let winningTriplets = {
@@ -96,12 +139,13 @@ const gameFlow = (function(){
             if (row + column === 2){
                 winningTriplets.antidiagonal += point;
             }
-            board.printBoardOnConsole();
             checkForAWinner(column, row, activePlayer);
             activePlayer = activePlayer === Player2 ? Player1 : Player2;
             round++;
         }
     }
+
+    const getActivePlayer = () => activePlayer;
 
     const checkForAWinner = (column, row, player) => {     
         if (Math.abs(winningTriplets.rows[row]) === 3 ||
@@ -109,13 +153,14 @@ const gameFlow = (function(){
         Math.abs(winningTriplets.diagonal) === 3 ||
         Math.abs(winningTriplets.antidiagonal) === 3) {
             console.log(`${player.name} wins!`);
+
+            //TODO add end game logic
         }
     }
 
-    const restartGame = () => {
-        board = createGameBoard();
-    }
+    // const restartGame = () => {
+    //     board = createGameBoard();
+    // }
 
-
-    return {playARound}
-})()
+    return {getActivePlayer, playARound}
+}
