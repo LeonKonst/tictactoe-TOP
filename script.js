@@ -1,3 +1,39 @@
+// Player factory
+function createPlayer(name, isBot, symbol){ 
+    return {name, isBot, symbol}
+}
+
+const userInterfaceController = ( function(){
+    const startGameBtn = document.querySelector(".start-game-btn");
+
+    function init(){
+        startGameBtn.addEventListener("click", startGame);
+    }
+
+    function startGame() {
+        const inputs = document.querySelectorAll("input");
+        const player1 = createPlayer(inputs[0].value, inputs[1].checked, "O")
+        const player2 = createPlayer(inputs[2].value, inputs[3].checked, "X")
+    }
+
+    return {init}
+})()
+
+
+document.addEventListener("DOMContentLoaded", userInterfaceController.init)
+
+
+
+
+
+    // const occupyTile = (column, row) => {
+    //     // This will be removed and changed to disable the button
+    //     if(board.board[column][row].isTileOccupied()){
+    //         gameDisplay.innerText = `Tile is occupied from symbol ${board.board[column][row].getPlayerOccupiedTile()}. Try another one!`;
+    //         return false;
+    //     }
+    //     board.board[parseInt(column)][parseInt(row)].setPlayerOccupiedTile(symbol);
+    //     return true;
 
 
 
@@ -5,16 +41,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-// const startGameBtn = document.querySelector(".start-game-btn");
+// 
 // const restartBtn = document.querySelector(".restart-btn");
 // const settingsMenu = document.querySelector(".settings-form");
 // const gameBoard = document.querySelector(".gameboard-container");
@@ -28,13 +55,7 @@
 
 
 // startGameBtn.addEventListener("click", () => {
-//     const inputs = document.querySelectorAll("input");
-//     let values = {
-//         playerOneName: inputs[0].value,
-//         isPlayerOneABot: inputs[1].checked,
-//         playerTwoName: inputs[2].value,
-//         isPlayerTwoABot: inputs[3].checked,
-//     };
+//     
 
 //     const cards = document.querySelector(".players-cards");
 //     console.log(cards)
@@ -110,22 +131,7 @@
 //     return {column, row, getPlayerOccupiedTile, setPlayerOccupiedTile, isTileOccupied}
 // }
 
-// function createPlayer(name, number, isBot, symbol, isActive){
 
-//     console.log(`${name} is player number ${number} and ${isBot?"a bot":"a human"} who uses the symbol ${symbol}`);
-
-//     const occupyTile = (column, row) => {
-//         // This will be removed and changed to disable the button
-//         if(board.board[column][row].isTileOccupied()){
-//             gameDisplay.innerText = `Tile is occupied from symbol ${board.board[column][row].getPlayerOccupiedTile()}. Try another one!`;
-//             return false;
-//         }
-//         board.board[parseInt(column)][parseInt(row)].setPlayerOccupiedTile(symbol);
-//         return true;
-//     }
-
-//     return {name, number, isActive, symbol, occupyTile}
-// }
 
 // function GameFlow (Player1, Player2){
 //     let round = 0;
