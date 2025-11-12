@@ -1,3 +1,11 @@
+// TODO LIST
+// Win game logic
+// Bot logic
+// Display moves, display errors, display wins, maybe rounds and game number?
+
+
+
+
 // Player factory
 function createPlayer(name, isBot, symbol){ 
     return {name, isBot, symbol}
