@@ -8,15 +8,27 @@ function createPlayer(name, isBot, symbol){
     return {name, isBot, symbol}
 }
 
-// Game Logic 
-const gameFlow = (function gameLogic(){
-    let movesHistory = [];
-    let players = []; 
-    let activePlayer;
+const gameState = ( function(){
     // count of rounds
     let round = 0;
     // count of games 
     let game = 0;
+    // players score
+    let score = [];
+    // game history 
+    let movesHistory = [];
+
+            //     movesHistory.push(
+            //     {row, column, player:getActivePlayer()}
+            // );
+})
+
+// Game Logic 
+const gameFlow = (function gameLogic(){
+    
+    let players = []; 
+    let activePlayer;
+
 
     const init = (player1, player2) =>{
         board.init();
@@ -34,14 +46,23 @@ const gameFlow = (function gameLogic(){
         let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
         if(hasPlayed){
             userInterfaceController.changeTile(row,column,getActivePlayer());
-            movesHistory.push(
-                {row, column, player:getActivePlayer()}
-            );
+
             userInterfaceController.displayText(
                 `${getActivePlayer().name} captured tile ${row}, ${column}`
             );
-            board.checkForWin(row, column);
-            toggleActivePlayer();
+            switch (board.checkForWin(row, column).status){
+                
+                case "win":
+                    console.log(board.checkForWin(row, column));
+                    console.log("Print the winner");
+                case "tie":
+                    console.log("logic to stop current game");
+                    break;
+                case "continue":
+                    toggleActivePlayer();
+                    break;
+            };
+            
         } else {
             userInterfaceController.displayText(
                 "Tile is already captured!"
@@ -49,7 +70,7 @@ const gameFlow = (function gameLogic(){
         }
     }
 
-    return {init, playRound, getActivePlayer, movesHistory}
+    return {init, playRound, getActivePlayer}
 })()
 
 const board = ( function (){
@@ -79,21 +100,34 @@ const board = ( function (){
 
 
     const checkForWin = (row, column) =>{
-        if(checkWinOnRows(row)
-            ||checkWinOnColumns(column)
-            ||checkWinOnDiagonal(row, column)
-            ||checkWinOnAntidiagonal(row, column)
-        ){
-            userInterfaceController.displayText(
+        if(checkWinOnRows(row).status){
+            return checkWinOnRows(row);            
+        }
+
+        if(checkWinOnColumns(column).status){
+            return checkWinOnColumns(column);
+        }
+
+        if(checkWinOnDiagonal(row, column).status){
+            return checkWinOnDiagonal(row,column);
+        }
+
+
+        if(checkWinOnAntidiagonal(row, column).status){
+            return checkWinOnAntidiagonal(row, column);
+        }
+        return {status:"continue", winningTiles: []};
+
+                    userInterfaceController.displayText(
                 `${gameFlow.getActivePlayer().name} won!`
             );
-
-            // TODO stop game after win logic
-        }
     }
 
     const checkWinOnRows = (row) => {
-        return board[row].every(el => el === gameFlow.getActivePlayer().symbol);
+        return {
+            status: board[row].every(el => el === gameFlow.getActivePlayer().symbol)? "win" : false,
+            winningTiles: `row-${row}`
+        }
     }
 
     const checkWinOnColumns = (column) => {
@@ -101,7 +135,10 @@ const board = ( function (){
             for(let i = 0; i < board.length; i++){
                 columnSnapShot.push(board[i][column]);
             }    
-        return columnSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+        return {
+            status: columnSnapShot.every(el => el === gameFlow.getActivePlayer().symbol)? "win" : false,
+            winningTiles: `column-${column}`
+        }
     }
 
     const checkWinOnDiagonal = (row, column) => {
@@ -115,7 +152,10 @@ const board = ( function (){
         if(diagonalSnapShot.length === 0){
             return false;
         } else {
-            return diagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+            return {
+                status: diagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol)? "win" : false,
+                winningTiles: `diagonal`
+            }
         }
     }
 
@@ -130,7 +170,10 @@ const board = ( function (){
         if(antidiagonalSnapShot.length === 0){
             return false;
         } else {
-            return antidiagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+            return {
+                status:antidiagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol)? "win" : false,
+                winningTiles: "antidiagonal"
+            }
         }
     };
 
