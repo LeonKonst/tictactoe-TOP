@@ -5,12 +5,36 @@ function createPlayer(name, isBot, symbol){
 
 // Game Logic 
 const gameFlow = (function gameLogic(){
+    let players = []; 
+    let activePlayer;
+    // count of rounds
+    let round = 0;
+    // count of games 
+    let game = 0;
 
-    const init = () =>{
+    const init = (player1, player2) =>{
         board.init();
+        players = [player1, player2];
+        setActivePlayer(player1);
     }
 
-    return {init}
+    const setActivePlayer = (player) => activePlayer = player;
+
+    const getActivePlayer = () => activePlayer;
+
+    const toggleActivePlayer = () => activePlayer = activePlayer === players[0] ? players[1]: players[0];
+
+    const playRound = (row, column) => {
+        let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
+        if(hasPlayed){
+            userInterfaceController.changeTile(row,column,getActivePlayer());
+            toggleActivePlayer();
+        } else {
+            console.log("invalid move");
+        }
+    }
+
+    return {init, playRound}
 })()
 
 const board = ( function (){
@@ -48,10 +72,12 @@ const userInterfaceController = ( function(){
     const gameContainer = document.querySelector(".game-container");
     const restartBtn = document.querySelector(".restart-btn");
     const cards = document.querySelector(".players-cards");
+    const gameBoard = document.querySelector(".gameboard-container");
 
     function init(){
         startGameBtn.addEventListener("click", startGame);
         restartBtn.addEventListener("click", () => console.log("Restart game logic will be added later!"))
+        gameBoard.addEventListener("click", clickOnTile);
     }
 
     function startGame() {
@@ -79,10 +105,27 @@ const userInterfaceController = ( function(){
         cards.querySelector(".card-bot.player-two").textContent = player2.isBot? "Bot":"Human";
     
         // Initialize game logic
-        gameFlow.init();
+        gameFlow.init(player1, player2);
     }
 
-    return {init}
+    const clickOnTile = (e) =>{
+        if(e.target.tagName === "DIV"){
+            return;
+        };
+        const str = e.target.classList.value;
+        let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
+        row = parseInt(row);
+        column = parseInt(column);
+        gameFlow.playRound(row,column);
+    } 
+
+    const changeTile = (row,column,player) =>{
+        gameBoard.querySelector(`.row-${row}.column-${column}`).classList.add(`symbol${player.symbol}`, "disabled")
+    }
+
+    
+
+    return {init, changeTile}
 })()
 
 document.addEventListener("DOMContentLoaded", userInterfaceController.init)
@@ -106,7 +149,7 @@ document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 
 
 
-// const gameBoard = document.querySelector(".gameboard-container");
+// 
 // const gameDisplay = document.querySelector(".display-container");
 // const main = document.querySelector("main");
 // const header = document.querySelector("header")
@@ -137,17 +180,7 @@ document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 // })
 
 
-// gameBoard.addEventListener("click", (e) =>{
-//     if(e.target.tagName === "DIV"){
-//         return;
-//     };
-//     const str = e.target.classList.value;
-//     let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
-//     row = parseInt(row);
-//     column = parseInt(column);
-//     gameLogic.playARound(column, row);
-     
-// })
+
 
 // // IIFE creating the board. 
 // const board = (function createGameBoard (){

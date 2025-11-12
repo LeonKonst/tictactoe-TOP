@@ -224,12 +224,12 @@ button.disabled{
     background-color: var(--color7);
 }
 
-button.number1::after{
+button.symbolO::after{
     color:var(--color6);
     content: "O";
 }
 
-button.number-1::after{
+button.symbolX::after{
     color:var(--color2);
     content: "X";
 }
