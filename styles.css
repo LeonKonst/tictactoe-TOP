@@ -216,11 +216,11 @@ input:checked+.slider{
     transition: all ease 0.3s;
 }
 
-.gameboard-container button:not(.disabled):hover{
+.gameboard-container button:not(.clicked):hover{
     opacity: 85%;
 }
 
-button.disabled{
+button.clicked{
     background-color: var(--color7);
 }
 
@@ -248,6 +248,10 @@ button.symbolX::after{
 
 .row-2>.column-2{
     border-radius: 0 0 1rem 0;
+}
+
+button.winningTile{
+    background-color: var(--color9);
 }
 
 .gameboard-container>div>button:first-child{

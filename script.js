@@ -17,9 +17,9 @@ const gameState = ( function(){
     // game history 
     let movesHistory = [];
 
-            //     movesHistory.push(
-            //     {row, column, player:getActivePlayer()}
-            // );
+    //movesHistory.push(
+    //     {row, column, player:getActivePlayer()}
+    //);
 })
 
 // Game Logic 
@@ -44,11 +44,15 @@ const gameFlow = (function gameLogic(){
     const playRound = (row, column) => {
         let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
         let messageToDisplay;
+        let winningTiles;
         if(hasPlayed){
-            switch (board.checkForWin(row, column).status){
-                
+            let checkForWinObject = board.checkForWin(row, column);
+            switch (checkForWinObject.status){               
                 case "win":
                     messageToDisplay = `${gameFlow.getActivePlayer().name} won!`;
+                    // add 1 point to activePlayer.
+                    winningTiles = checkForWinObject.winningTiles;
+                    console.log("logic to stop current game");
                     break;
                 case "tie":
                     messageToDisplay = `It's a tie!`;
@@ -59,11 +63,12 @@ const gameFlow = (function gameLogic(){
                     toggleActivePlayer();
                     break;
             };
-            
-        } else {
-            messageToDisplay = "Tile is already captured!"
-        }
-        return messageToDisplay;
+        } 
+        return {messageToDisplay, winningTiles};
+    }
+
+    const winFlow = () => {
+
     }
 
     return {init, playRound, getActivePlayer}
@@ -85,6 +90,7 @@ const board = ( function (){
     const getBoard = () => board;
 
     const setTile = (row, column, value) => {
+    
         // Check if tile is already captured.
         if(board[row][column]!==null){
             return false;
@@ -95,7 +101,6 @@ const board = ( function (){
 
     const checkForWin = (row, column) =>{
         
-
         if(checkWinOnRows(row).status){
             return checkWinOnRows(row);            
         }
@@ -108,20 +113,15 @@ const board = ( function (){
             return checkWinOnDiagonal(row,column);
         }
 
-
         if(checkWinOnAntidiagonal(row, column).status){
             return checkWinOnAntidiagonal(row, column);
         }
-
-
 
         if(checkForTie().status){
             return checkForTie();
         };
 
         return {status:"continue", winningTiles: []};
-
-
     }
 
     const checkWinOnRows = (row) => {
@@ -246,21 +246,33 @@ const userInterfaceController = ( function(){
         let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
         row = parseInt(row);
         column = parseInt(column);
-        changeTile(row,column,gameFlow.getActivePlayer());
-        let messageToDisplay = gameFlow.playRound(row,column);
-        displayText(messageToDisplay);
+        if(!e.target.classList.contains("clicked")){    
+            changeTile(row,column,gameFlow.getActivePlayer());
+            let roundObj = gameFlow.playRound(row,column);
+            displayText(roundObj.messageToDisplay);
+            styleWinningTiles(roundObj.winningTiles);
+        }  
     } 
 
     const changeTile = (row,column,player) =>{
-        gameBoard.querySelector(`.row-${row}.column-${column}`).classList.add(`symbol${player.symbol}`, "disabled")
+        gameBoard.querySelector(`.row-${row}.column-${column}`).classList.add(`symbol${player.symbol}`, "clicked")
     }
 
     const displayText = (text) => {
         gameDisplay.innerText = text;
     }
+
+    const styleWinningTiles = (tileClass) => {
+        if(!tileClass){
+            return;
+        } else {
+            gameBoard.querySelectorAll(`.${tileClass}`).forEach(el => el.classList.add("winningTile"));
+            gameBoard.removeEventListener("click", clickOnTile);
+        }
+    }
     
 
-    return {init, changeTile, displayText}
+    return {init, changeTile, displayText, styleWinningTiles}
 })()
 
 document.addEventListener("DOMContentLoaded", userInterfaceController.init)
