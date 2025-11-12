@@ -44,30 +44,26 @@ const gameFlow = (function gameLogic(){
 
     const playRound = (row, column) => {
         let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
+        let messageToDisplay;
         if(hasPlayed){
-            userInterfaceController.changeTile(row,column,getActivePlayer());
-
-            userInterfaceController.displayText(
-                `${getActivePlayer().name} captured tile ${row}, ${column}`
-            );
             switch (board.checkForWin(row, column).status){
                 
                 case "win":
-                    console.log(board.checkForWin(row, column));
-                    console.log("Print the winner");
+                    messageToDisplay = `${gameFlow.getActivePlayer().name} won!`;
+                    //missing break here as there is the same need to end game when its a win or a tie!                
                 case "tie":
                     console.log("logic to stop current game");
                     break;
                 case "continue":
+                    messageToDisplay = `${getActivePlayer().name} captured tile ${row}, ${column}`
                     toggleActivePlayer();
                     break;
             };
             
         } else {
-            userInterfaceController.displayText(
-                "Tile is already captured!"
-            );
+            messageToDisplay = "Tile is already captured!"
         }
+        return messageToDisplay;
     }
 
     return {init, playRound, getActivePlayer}
@@ -97,8 +93,6 @@ const board = ( function (){
         return true;
     }; 
 
-
-
     const checkForWin = (row, column) =>{
         if(checkWinOnRows(row).status){
             return checkWinOnRows(row);            
@@ -118,9 +112,7 @@ const board = ( function (){
         }
         return {status:"continue", winningTiles: []};
 
-                    userInterfaceController.displayText(
-                `${gameFlow.getActivePlayer().name} won!`
-            );
+
     }
 
     const checkWinOnRows = (row) => {
@@ -234,7 +226,9 @@ const userInterfaceController = ( function(){
         let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
         row = parseInt(row);
         column = parseInt(column);
-        gameFlow.playRound(row,column);
+        changeTile(row,column,gameFlow.getActivePlayer());
+        let messageToDisplay = gameFlow.playRound(row,column);
+        displayText(messageToDisplay);
     } 
 
     const changeTile = (row,column,player) =>{
