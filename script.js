@@ -1,7 +1,7 @@
 // TODO LIST
-// Win game logic
+// After Winning game Logic
+// Tie logic
 // Bot logic
-// Display moves, display errors, display wins, maybe rounds and game number?
 
 // Player factory
 function createPlayer(name, isBot, symbol){ 
@@ -10,6 +10,7 @@ function createPlayer(name, isBot, symbol){
 
 // Game Logic 
 const gameFlow = (function gameLogic(){
+    let movesHistory = [];
     let players = []; 
     let activePlayer;
     // count of rounds
@@ -33,69 +34,22 @@ const gameFlow = (function gameLogic(){
         let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
         if(hasPlayed){
             userInterfaceController.changeTile(row,column,getActivePlayer());
-            
-            checkForWin(row, column);
+            movesHistory.push(
+                {row, column, player:getActivePlayer()}
+            );
+            userInterfaceController.displayText(
+                `${getActivePlayer().name} captured tile ${row}, ${column}`
+            );
+            board.checkForWin(row, column);
             toggleActivePlayer();
         } else {
-            console.log("invalid move");
+            userInterfaceController.displayText(
+                "Tile is already captured!"
+            );
         }
     }
 
-    const checkForWin = (row, column) =>{
-        if(checkWinOnRows(row)
-            ||checkWinOnColumns(column)
-            ||checkWinOnDiagonal(row, column)
-            ||checkWinOnAntidiagonal(row, column)
-        ){
-            console.log("Win");
-
-            // TODO stop game after win logic
-        }
-    }
-
-    const checkWinOnRows = (row) => {
-        return board.getBoard()[row].every(el => el === getActivePlayer().symbol);
-    }
-
-    const checkWinOnColumns = (column) => {
-        let columnSnapShot = [];
-            for(let i = 0; i < board.getBoard().length; i++){
-                columnSnapShot.push(board.getBoard()[i][column]);
-            }    
-        return columnSnapShot.every(el => el === getActivePlayer().symbol);
-    }
-
-    const checkWinOnDiagonal = (row, column) => {
-        let diagonalSnapShot = [];
-        if(row === column){
-            for(let i = 0; i < board.getBoard().length; i++){
-                diagonalSnapShot.push(board.getBoard()[i][i]);
-            }
-        }
-
-        if(diagonalSnapShot.length === 0){
-            return false;
-        } else {
-            return diagonalSnapShot.every(el => el === getActivePlayer().symbol);
-        }
-    }
-
-    const checkWinOnAntidiagonal = (row, column) => {
-        let antidiagonalSnapShot = [];
-        if(row + column === board.getBoard().length - 1){
-            for(let i = 0; i < board.getBoard().length; i++){
-                antidiagonalSnapShot.push(board.getBoard()[i][board.getBoard().length - i - 1]);
-            }
-        }
-
-        if(antidiagonalSnapShot.length === 0){
-            return false;
-        } else {
-            return antidiagonalSnapShot.every(el => el === getActivePlayer().symbol);
-        }
-    };
-
-    return {init, playRound}
+    return {init, playRound, getActivePlayer, movesHistory}
 })()
 
 const board = ( function (){
@@ -121,8 +75,67 @@ const board = ( function (){
         board[row][column] = value;
         return true;
     }; 
+
+
+
+    const checkForWin = (row, column) =>{
+        if(checkWinOnRows(row)
+            ||checkWinOnColumns(column)
+            ||checkWinOnDiagonal(row, column)
+            ||checkWinOnAntidiagonal(row, column)
+        ){
+            userInterfaceController.displayText(
+                `${gameFlow.getActivePlayer().name} won!`
+            );
+
+            // TODO stop game after win logic
+        }
+    }
+
+    const checkWinOnRows = (row) => {
+        return board[row].every(el => el === gameFlow.getActivePlayer().symbol);
+    }
+
+    const checkWinOnColumns = (column) => {
+        let columnSnapShot = [];
+            for(let i = 0; i < board.length; i++){
+                columnSnapShot.push(board[i][column]);
+            }    
+        return columnSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+    }
+
+    const checkWinOnDiagonal = (row, column) => {
+        let diagonalSnapShot = [];
+        if(row === column){
+            for(let i = 0; i < board.length; i++){
+                diagonalSnapShot.push(board[i][i]);
+            }
+        }
+
+        if(diagonalSnapShot.length === 0){
+            return false;
+        } else {
+            return diagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+        }
+    }
+
+    const checkWinOnAntidiagonal = (row, column) => {
+        let antidiagonalSnapShot = [];
+        if(row + column === board.length - 1){
+            for(let i = 0; i < board.length; i++){
+                antidiagonalSnapShot.push(board[i][board.length - i - 1]);
+            }
+        }
+
+        if(antidiagonalSnapShot.length === 0){
+            return false;
+        } else {
+            return antidiagonalSnapShot.every(el => el === gameFlow.getActivePlayer().symbol);
+        }
+    };
+
     
-    return {getBoard, setTile, init};
+    return {init, getBoard, setTile, checkForWin};
 })()
 
 
@@ -134,6 +147,7 @@ const userInterfaceController = ( function(){
     const restartBtn = document.querySelector(".restart-btn");
     const cards = document.querySelector(".players-cards");
     const gameBoard = document.querySelector(".gameboard-container");
+    const gameDisplay = document.querySelector(".display-container");
 
     function init(){
         startGameBtn.addEventListener("click", startGame);
@@ -184,176 +198,13 @@ const userInterfaceController = ( function(){
         gameBoard.querySelector(`.row-${row}.column-${column}`).classList.add(`symbol${player.symbol}`, "disabled")
     }
 
+    const displayText = (text) => {
+        gameDisplay.innerText = text;
+    }
     
 
-    return {init, changeTile}
+    return {init, changeTile, displayText}
 })()
 
 document.addEventListener("DOMContentLoaded", userInterfaceController.init)
 
-
-
-
-
-    // const occupyTile = (column, row) => {
-    //     // This will be removed and changed to disable the button
-    //     if(board.board[column][row].isTileOccupied()){
-    //         gameDisplay.innerText = `Tile is occupied from symbol ${board.board[column][row].getPlayerOccupiedTile()}. Try another one!`;
-    //         return false;
-    //     }
-    //     board.board[parseInt(column)][parseInt(row)].setPlayerOccupiedTile(symbol);
-    //     return true;
-
-
-
-
-
-
-
-// 
-// const gameDisplay = document.querySelector(".display-container");
-// const main = document.querySelector("main");
-// const header = document.querySelector("header")
-// let Player1;
-// let Player2;
-// let gameLogic;
-
-
-// startGameBtn.addEventListener("click", () => {
-//     
-
-//     const cards = document.querySelector(".players-cards");
-//     console.log(cards)
-//     Player1 = createPlayer(values.playerOneName, 1, values.isPlayerOneABot, "O");
-//     Player2 = createPlayer(values.playerTwoName, -1, values.isPlayerTwoABot, "X");
-//     gameLogic = GameFlow(Player1, Player2);
-//     header.classList.add("with-button");
-//     restartBtn.classList.add("show");
-//     settingsMenu.style.display = "none";
-//     gameContainer.style.display = "flex";
-// });
-
-// restartBtn.addEventListener("click", () => {
-//     settingsMenu.style.display = "block";
-//     gameContainer.style.display = "none";
-//     restartBtn.classList.remove("show");
-//     header.classList.remove("with-button");
-// })
-
-
-
-
-// // IIFE creating the board. 
-// const board = (function createGameBoard (){
-//     let board = [];
-//     const columns = 3;
-//     const rows = 3;
-
-//     for (let i = 0; i < columns; i++){
-//         board[i] = [];
-//         for (let j = 0; j < rows; j++){
-//             board[i][j] = createBoardTile(i, j, 0);
-//         }
-//     }
-
-//     const setTile = (column, row) => {
-//         let nextActivePlayer = gameLogic.getActivePlayer();
-//         let changedBtn = document.querySelector(`.row-${row}.column-${column}`);
-//         changedBtn.classList.add(`disabled`,`number${nextActivePlayer.number}`) 
-//     }
-
-//     return {board, columns, rows, setTile};
-// })()
-
-// function createBoardTile (column, row, player){
-//     let playerOccupiedTile = player;
-
-//     // This function will be used to occupy the tile by a player
-//     const setPlayerOccupiedTile = (player) => {
-//         playerOccupiedTile = player;
-//     }
-
-//     // This function will be used to render the right player for each tile
-//     const getPlayerOccupiedTile = () => {
-//         return playerOccupiedTile;
-//     }
-
-//     // This function will be used to disable the tiles to be clicked again 
-//     const isTileOccupied = () => {
-//         return playerOccupiedTile !== 0;
-//     }
-
-//     return {column, row, getPlayerOccupiedTile, setPlayerOccupiedTile, isTileOccupied}
-// }
-
-
-
-// function GameFlow (Player1, Player2){
-//     let round = 0;
-//     let activePlayer = Player1;
-//     let winningTriplets = {
-//         rows: [0, 0, 0],
-//         columns: [0, 0, 0],
-//         diagonal: 0,
-//         antidiagonal: 0
-//     }
-
-//     const playARound = (column, row) => {
-//         let hasPlayedRound = activePlayer.occupyTile(column,row);
-//         if(hasPlayedRound){
-//             board.setTile(column,row);  
-//             gameDisplay.innerText = `${activePlayer.name} occupied tile ${row}, ${column}`
-            
-//             let point = activePlayer.number;
-//             winningTriplets.rows[row] += point;
-//             winningTriplets.columns[column] += point;
-//             if (row === column){
-//                 winningTriplets.diagonal += point;
-//             } 
-//             if (row + column === 2){
-//                 winningTriplets.antidiagonal += point;
-//             }
-//             checkForAEnd(column, row, activePlayer);
-//             activePlayer = activePlayer === Player2 ? Player1 : Player2;
-//             round++;
-//         }
-//     }
-
-//     const getActivePlayer = () => activePlayer;
-
-//     const checkForAEnd = (column, row, player) => { 
-            
-//         // Check if someone is winning
-        
-//         let isTie = round === 8;
-//         if(isTie){
-//             gameDisplay.innerText =`It's a Tie!`;
-//         }
-//         let isThereAWinner = checkForAWinner(column, row, player);
-
-//     }
-
-
-//     const checkForAWinner = (column, row, player) => {
-//         if(round < 5){
-//             return;
-//         } 
-//         if (Math.abs(winningTriplets.rows[row]) === 3 ||
-//         Math.abs(winningTriplets.columns[column]) === 3 ||
-//         Math.abs(winningTriplets.diagonal) === 3 ||
-//         Math.abs(winningTriplets.antidiagonal) === 3) {
-//             gameDisplay.innerText =`${player.name} wins!`;
-//             return true;
-//         }
-//     }
-
-//     // TODO restart game Logic
-//     // const restartGame = () => {
-//     //     board = createGameBoard();
-//     // }
-
-//     return {getActivePlayer, playARound}
-// }
-
-
-// //TODO bot playing logic
