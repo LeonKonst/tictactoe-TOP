@@ -3,9 +3,6 @@
 // Bot logic
 // Display moves, display errors, display wins, maybe rounds and game number?
 
-
-
-
 // Player factory
 function createPlayer(name, isBot, symbol){ 
     return {name, isBot, symbol}
@@ -36,11 +33,67 @@ const gameFlow = (function gameLogic(){
         let hasPlayed = board.setTile(row, column, getActivePlayer().symbol);
         if(hasPlayed){
             userInterfaceController.changeTile(row,column,getActivePlayer());
+            
+            checkForWin(row, column);
             toggleActivePlayer();
         } else {
             console.log("invalid move");
         }
     }
+
+    const checkForWin = (row, column) =>{
+        if(checkWinOnRows(row)
+            ||checkWinOnColumns(column)
+            ||checkWinOnDiagonal(row, column)
+            ||checkWinOnAntidiagonal(row, column)
+        ){
+            console.log("Win");
+
+            // TODO stop game after win logic
+        }
+    }
+
+    const checkWinOnRows = (row) => {
+        return board.getBoard()[row].every(el => el === getActivePlayer().symbol);
+    }
+
+    const checkWinOnColumns = (column) => {
+        let columnSnapShot = [];
+            for(let i = 0; i < board.getBoard().length; i++){
+                columnSnapShot.push(board.getBoard()[i][column]);
+            }    
+        return columnSnapShot.every(el => el === getActivePlayer().symbol);
+    }
+
+    const checkWinOnDiagonal = (row, column) => {
+        let diagonalSnapShot = [];
+        if(row === column){
+            for(let i = 0; i < board.getBoard().length; i++){
+                diagonalSnapShot.push(board.getBoard()[i][i]);
+            }
+        }
+
+        if(diagonalSnapShot.length === 0){
+            return false;
+        } else {
+            return diagonalSnapShot.every(el => el === getActivePlayer().symbol);
+        }
+    }
+
+    const checkWinOnAntidiagonal = (row, column) => {
+        let antidiagonalSnapShot = [];
+        if(row + column === board.getBoard().length - 1){
+            for(let i = 0; i < board.getBoard().length; i++){
+                antidiagonalSnapShot.push(board.getBoard()[i][board.getBoard().length - i - 1]);
+            }
+        }
+
+        if(antidiagonalSnapShot.length === 0){
+            return false;
+        } else {
+            return antidiagonalSnapShot.every(el => el === getActivePlayer().symbol);
+        }
+    };
 
     return {init, playRound}
 })()
