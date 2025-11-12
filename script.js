@@ -1,6 +1,5 @@
 // TODO LIST
 // After Winning game Logic
-// Tie logic
 // Bot logic
 
 // Player factory
@@ -50,8 +49,9 @@ const gameFlow = (function gameLogic(){
                 
                 case "win":
                     messageToDisplay = `${gameFlow.getActivePlayer().name} won!`;
-                    //missing break here as there is the same need to end game when its a win or a tie!                
+                    break;
                 case "tie":
+                    messageToDisplay = `It's a tie!`;
                     console.log("logic to stop current game");
                     break;
                 case "continue":
@@ -94,6 +94,8 @@ const board = ( function (){
     }; 
 
     const checkForWin = (row, column) =>{
+        
+
         if(checkWinOnRows(row).status){
             return checkWinOnRows(row);            
         }
@@ -110,6 +112,13 @@ const board = ( function (){
         if(checkWinOnAntidiagonal(row, column).status){
             return checkWinOnAntidiagonal(row, column);
         }
+
+
+
+        if(checkForTie().status){
+            return checkForTie();
+        };
+
         return {status:"continue", winningTiles: []};
 
 
@@ -168,6 +177,17 @@ const board = ( function (){
             }
         }
     };
+
+    const checkForTie = () => {
+        let board1d = [];
+        for (let i = 0; i < board.length; i++){
+            board1d.push(...board[i]);
+        }
+        return {
+            status: board1d.every(el => el !== null) ? "tie": false,
+            winningTiles:[]
+        }
+    }
 
     
     return {init, getBoard, setTile, checkForWin};
