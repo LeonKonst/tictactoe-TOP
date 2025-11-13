@@ -1,5 +1,3 @@
-// TODO LIST
-
 // create gameStatus, fixed number of games, best of 3, add points after win, switch starting player after every game.
 
 // Player factory
@@ -95,7 +93,7 @@ const gameState = (function(){
     // count of games 
     let game;
     // players score
-    let score = [];
+    let score = [0, 0];
     // game history 
     let movesHistory = [];
 
@@ -103,9 +101,7 @@ const gameState = (function(){
         // count of rounds
         round = 0;
         // count of games 
-        game = 0;
-        // players score
-        score = [0, 0];
+        game = 0;        
         // game history 
         movesHistory = [];
     }
@@ -116,7 +112,18 @@ const gameState = (function(){
         movesHistory.push({row, column, player, status});
     }
 
-    return {init, getMovesHistory, pushToMovesHistory}
+    const addScore = (symbol) => {
+        if(symbol ==="O"){
+            score[0]++;
+        } else {
+            score[1]++;
+        }
+        
+    }
+
+    const getScore = () => score;
+
+    return {init, getMovesHistory, pushToMovesHistory, addScore, getScore}
 })()
 
 // Game Logic 
@@ -127,6 +134,7 @@ const gameController = (function gameLogic(){
 
     const init = (player1, player2) =>{
         board.init();
+        gameState.init();
         players = [player1, player2];
         setActivePlayer(player2);
         roundHandler("continue");
@@ -135,6 +143,8 @@ const gameController = (function gameLogic(){
     const setActivePlayer = (player) => activePlayer = player;
 
     const getActivePlayer = () => activePlayer;
+
+    const getPlayers = () => players;
 
     const toggleActivePlayer = () => activePlayer = activePlayer === players[0] ? players[1]: players[0];
 
@@ -153,10 +163,13 @@ const gameController = (function gameLogic(){
                 break;
             case "win":
                 messageToDisplay = `${getActivePlayer().name} won!`;
-                // add 1 point to activePlayer.
+                gameState.addScore(getActivePlayer().symbol);
+                userInterfaceController.handleWinOrTie(gameState.getScore());
+
                 break;
             case "tie":
                 messageToDisplay = `It's a tie!`;
+                userInterfaceController.handleWinOrTie(gameState.getScore());
                 break;
         }
         if (messageToDisplay) userInterfaceController.updateDisplay(messageToDisplay);
@@ -167,7 +180,6 @@ const gameController = (function gameLogic(){
         if(!getActivePlayer().isBot){    
             let roundObj = playRound(row,column);
             roundHandler(roundObj.status);
-            // updateDisplay(roundObj.messageToDisplay);
             userInterfaceController.styleWinningTiles(roundObj.winningTiles);
         } 
     }
@@ -186,7 +198,7 @@ const gameController = (function gameLogic(){
         
     }
 
-    return {init, roundHandler, onTileClick, playRound, getActivePlayer}
+    return {init, roundHandler, onTileClick, playRound, getActivePlayer, getPlayers}
 })()
 
 const board = ( function (){
@@ -312,26 +324,42 @@ const userInterfaceController = ( function(){
     const settingsMenu = document.querySelector(".settings-form");
     const gameContainer = document.querySelector(".game-container");
     const restartBtn = document.querySelector(".restart-btn");
+    const continueBtn = document.querySelector(".continue-btn");
     const cards = document.querySelector(".players-cards");
     const gameBoard = document.querySelector(".gameboard-container");
     const gameDisplay = document.querySelector(".display-container");
 
     const init = () => {
         startGameBtn.addEventListener("click", startGame);
-        restartBtn.addEventListener("click", restartGame)
+        restartBtn.addEventListener("click", restartGame);
+        continueBtn.addEventListener("click", newGame);
         gameBoard.addEventListener("click", clickOnTile);
     }
 
     const restartGame = () =>{
-        init();
-        switchToSettingsInterface();
-        board.init();
         gameBoard.querySelectorAll("button").forEach(el =>el.classList.remove("winning-tile", "clicked","symbolO", "symbolX"));
         updateDisplay("");
+        toggleContinueBtn();
+        gameController.init(gameController.getPlayers()[1],gameController.getPlayers()[0]);
+        newGame();
+        switchToSettingsInterface();
+        updateScore([0,0]);
+    }
+
+    const newGame = () =>{
+        if(continueBtn.classList.contains("disabled")){
+            return ;
+        }
+        init();
+        gameBoard.querySelectorAll("button").forEach(el =>el.classList.remove("winning-tile", "clicked","symbolO", "symbolX"));
+        updateDisplay("");
+        toggleContinueBtn();
+        gameController.init(gameController.getPlayers()[1],gameController.getPlayers()[0]);
     }
 
 
-    function startGame() {
+    const startGame = () => {
+
         // Capture inputs and create two players using the factory.
         const inputs = document.querySelectorAll("input");
         const player1 = createPlayer(inputs[0].value, inputs[1].checked, "O")
@@ -344,6 +372,7 @@ const userInterfaceController = ( function(){
     }
 
     const clickOnTile = (e) =>{
+        
         const tile = e.target;
         if(tile.tagName === "DIV" || tile.classList.contains("clicked") ){
             return;
@@ -375,9 +404,9 @@ const userInterfaceController = ( function(){
         // Display tic tac toe board
         gameContainer.style.display = "flex";
 
-        // Display restart button on header
+        // Display restart and continue button on header
         restartBtn.style.display = "grid";
-
+        continueBtn.style.display = "grid";
         // Populate player's cards
         cards.querySelector(".card-name.player-one").textContent = player1.name;
         cards.querySelector(".card-symbol.player-one").textContent = player1.symbol;
@@ -397,6 +426,20 @@ const userInterfaceController = ( function(){
         gameDisplay.innerText = text;
     }
 
+    const handleWinOrTie = (score) => {
+        updateScore(score);
+        toggleContinueBtn();
+    }
+
+    const updateScore = (score) => {
+        cards.querySelector(".player-one-score").textContent = score[0];
+        cards.querySelector(".player-two-score").textContent = score[1];
+    }
+
+    const toggleContinueBtn = () => {
+        continueBtn.classList.toggle("disabled");
+    }
+
     const styleWinningTiles = (tileClass) => {
         if(!tileClass){
             return;
@@ -409,7 +452,7 @@ const userInterfaceController = ( function(){
     const disableBoard = () => gameBoard.removeEventListener("click", clickOnTile);
     
 
-    return {init, updateDisplay, changeTile, styleWinningTiles, disableBoard}
+    return {init, updateDisplay, changeTile, styleWinningTiles, disableBoard, handleWinOrTie}
 })()
 
 document.addEventListener("DOMContentLoaded", userInterfaceController.init)
