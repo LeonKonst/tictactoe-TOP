@@ -229,7 +229,7 @@ button.symbolX::after{
     border-radius: 0 0 1rem 0;
 }
 
-button.winningTile{
+button.winning-tile{
     background-color: var(--color9);
 }
 
