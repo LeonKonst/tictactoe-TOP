@@ -1,16 +1,92 @@
 // TODO LIST
-// Bot logic
+
 // create gameStatus, fixed number of games, best of 3, add points after win, switch starting player after every game.
 
 // Player factory
-function createPlayer(name, isBot, symbol){ 
+function createPlayer(name, isBot, symbol) {
 
-    const botChooseTile = (movesHistory) => {
-        let column = movesHistory[movesHistory.length - 1].column;
-        let row = movesHistory[movesHistory.length-1].row + 1;
-        return [row, column];
-    }
-    return {name, isBot, symbol, botChooseTile}
+
+    // Bot logic was COMPLETELY WRITTEN BY CHATGPT. 
+    // 
+    const botChooseTile = (boardCopy) => {
+        if (!isBot) return null; // only for bots
+
+        const opponentSymbol = symbol === "X" ? "O" : "X";
+
+        // Check if the board is empty -> take center or a corner
+        if (boardCopy.flat().every(el => el === null)) {
+            return [1, 1]; // take center
+        }
+
+        // Minimax algorithm
+        const minimax = (boardCopy, depth, isMaximizing) => {
+            const winner = checkWinner(boardCopy);
+            if (winner === symbol) return 10 - depth;
+            if (winner === opponentSymbol) return depth - 10;
+            if (boardCopy.flat().every(el => el !== null)) return 0; // tie
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (!boardCopy[i][j]) {
+                            boardCopy[i][j] = symbol;
+                            const score = minimax(boardCopy, depth + 1, false);
+                            boardCopy[i][j] = null;
+                            bestScore = Math.max(score, bestScore);
+                        }
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (!boardCopy[i][j]) {
+                            boardCopy[i][j] = opponentSymbol;
+                            const score = minimax(boardCopy, depth + 1, true);
+                            boardCopy[i][j] = null;
+                            bestScore = Math.min(score, bestScore);
+                        }
+                    }
+                }
+                return bestScore;
+            }
+        };
+
+        let bestMove;
+        let bestScore = -Infinity;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (!boardCopy[i][j]) {
+                    boardCopy[i][j] = symbol;
+                    const score = minimax(boardCopy, 0, false);
+                    boardCopy[i][j] = null;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = [i, j];
+                    }
+                }
+            }
+        }
+
+        return bestMove;
+    };
+
+    // Helper to evaluate board for a winner
+    const checkWinner = (b) => {
+        // rows & columns
+        for (let i = 0; i < 3; i++) {
+            if (b[i][0] && b[i][0] === b[i][1] && b[i][1] === b[i][2]) return b[i][0];
+            if (b[0][i] && b[0][i] === b[1][i] && b[1][i] === b[2][i]) return b[0][i];
+        }
+        // diagonals
+        if (b[0][0] && b[0][0] === b[1][1] && b[1][1] === b[2][2]) return b[0][0];
+        if (b[0][2] && b[0][2] === b[1][1] && b[1][1] === b[2][0]) return b[0][2];
+        return null;
+    };
+
+    return { name, isBot, symbol, botChooseTile };
 }
 
 const gameState = (function(){
@@ -68,12 +144,11 @@ const gameController = (function gameLogic(){
             case "continue":
                 toggleActivePlayer();
                 if(getActivePlayer().isBot){
-                    let [row, column] = getActivePlayer().botChooseTile(gameState.getMovesHistory());
+                    let [row, column] = getActivePlayer().botChooseTile(board.getBoard(), getActivePlayer().symbol);
                     let roundObj = playRound(row,column);
-                    
+                    messageToDisplay = `${getActivePlayer().name} captured tile ${row}, ${column}!`;
                     userInterfaceController.styleWinningTiles(roundObj.winningTiles);
                     roundHandler(roundObj.status);
-                    
                 }
                 break;
             case "win":
@@ -278,7 +353,7 @@ const userInterfaceController = ( function(){
         let [, row, column] = str.match(/row-(\d+)\s+column-(\d+)/);
         row = parseInt(row);
         column = parseInt(column);
-
+        updateDisplay(`${gameController.getActivePlayer().name} captured tile ${row}, ${column}!`);
         gameController.onTileClick(row, column) 
     } 
 
