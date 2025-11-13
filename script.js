@@ -1,6 +1,6 @@
 // TODO LIST
-// After Winning game Logic
 // Bot logic
+// create gameStatus, fixed number of games, best of 3, add points after win, switch starting player after every game.
 
 // Player factory
 function createPlayer(name, isBot, symbol){ 

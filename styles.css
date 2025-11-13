@@ -24,36 +24,15 @@ body{
 header{
     background-color: var(--color4);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0.5rem 2rem;
     align-items: center;
     border-bottom: 3px solid var(--color10);
 }
 
-header.with-button{
-    justify-content: space-between;
-    
-}
-
 header h1{
     padding: 0.5rem 1rem;
 }
-
-.restart-btn{
-    border: 1px solid var(--color10);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: var(--color7);
-    color: var(--color10);
-    transition: all 0.3s ease;
-    display: none;
-}
-
-.restart-btn:hover{
-    background-color: var(--color10);
-    color: var(--color7)
-}
-
 
 main{
     display: flex;
@@ -292,7 +271,7 @@ button.winningTile{
     display: grid;
     gap: 6px;
     grid-template-columns: 20px 1fr;
-    grid-template-rows: 1fr 20px;
+    grid-template-rows: 1fr 20px 20px;
     border: 2px solid var(--color10);
     box-shadow: 3px 3px var(--color10);
 }
@@ -330,14 +309,44 @@ button.winningTile{
     justify-self: start;
 }
 
+.player-one-score,.player-two-score{
+    grid-column: 1/3;
+}
+
+.restart-btn{
+    border: 1px solid var(--color10);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--color7);
+    box-shadow: 3px 3px var(--color10);
+    color: var(--color10);
+    transition: all 0.3s ease;
+    transform: translate(0,0);
+    display: none;
+}
+
+.restart-btn:hover{
+    transform: translate(3px,3px);
+    box-shadow: 0 0;
+}
+
 footer{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    border-top: 3px solid var(--color10);
     background-color: var(--color4);
+}
+
+.footer-content{
+    min-width: 300px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 2rem;
     font-size: small;
-    border-top: 3px solid var(--color10);
+
 }
 
 footer a{
